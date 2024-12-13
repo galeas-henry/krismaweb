@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Álbum de Fotos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Estilos básicos */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            text-align: center;
+        }
+
+        /* Estilos de header */
+        header {
+            background-color: #e0d8be;
+            color: #333;
+            padding: 50px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            color: #6600cc;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        /* Estilos de gallery */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        .photo {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+            margin: 10px;
+            background-color: #fff;
+        }
+
+        .photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .photo:hover img {
+            transform: scale(1.1);
+        }
+
+        .photo:hover {
+            transform: scale(1.05);
+        }
+
+        /* Estilos de login */
+        .login {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-form h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .login-form input[type="password"] {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 2px solid #6600cc;
+            width: 250px;
+            font-size: 1rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .login-form input[type="password"]:focus {
+            border-color: #4b0082;
+        }
+
+        .login-form button {
+            background-color: #6600cc;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .login-form button:hover {
+            background-color: #4b0082;
+        }
+
+        .login-form span {
+            font-size: 1rem;
+            margin-top: 10px;
+            display: block;
+        }
+
+        /* Estilos de like-section */
+        .like-section {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            background-color: #e0d8be;
+        }
+
+        footer {
+            background-color: #6600cc;
+            color: #fff;
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+
+        footer p {
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        /* Estilos de modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 60px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            text-align: center;
+            background-color: #e0d8be;
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 80%;
+            max-height: 80%;
+            background-color: #fff;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #6600cc;
+        }
+
+        /* Estilos de comment-section */
+        .comment-section {
+            margin-top: 40px;
+            text-align: left;
+            width: 60%;
+            margin: 40px auto;
+            background-color: #fff;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            background-color: #6600cc;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #4b0082;
+        }
+
+        #commentsList {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .comment {
+            background-color: #fff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-message {
+            color: #dd2c2c;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Estilos de botones de like */
+        .like-btn {
+            background-color: #6600cc;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background-color 0.2s ease;
+        }
+
+        .like-btn:hover {
+            background-color: #4b0082;
+        }
+
+        /* Estilos de botones de descargar */
+        .download-btn {
+            background-color: #66cccc;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background-color 0.2s ease;
+        }
+
+        .download-btn:hover {
+            background-color: #33cc66;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Bienvenidos a Mi Álbum de Fotos</h1>
+        <p>Un viaje visual a través de mis recuerdos.</p>
+    </header>
+
+    <div class="login">
+        <div class="login-form">
+            <h2>Acceso Restringido</h2>
+            <input type="password" id="password" placeholder="Introduce la contraseña" autocomplete="off">
+            <span id="passwordHint">Introduce la contraseña secreta: krisma</span>
+            <button onclick="checkPassword()">Acceder</button>
+        </div>
+    </div>
+
+    <section class="gallery" style="display: none;">
+        <!-- Fotos -->
+        <div class="photo" id="photo1">
+            <img src="foto_1.jpeg" alt="Foto 1" onclick="viewImage('foto_1.jpeg')">
+            <div class="like-section">
+                <button class="like-btn" onclick="likePhoto('photo1')">Me gusta <i class="fas fa-heart"></i></button>
+                <span class="like-counter">0</span> Me gusta
+            </div>
+            <div class="comment-section">
+                <h3>Deja un comentario</h3>
+                <textarea id="comment1" placeholder="Escribe un comentario..."></textarea>
+                <button onclick="submitComment('comment1', 'commentsList1')">Enviar</button>
+                <div id="commentsList1"></div>
+            </div>
+        </div>
+
+        <div class="photo" id="photo2">
+            <img src="foto_2.jpeg" alt="Foto 2" onclick="viewImage('foto_2.jpeg')">
+            <div class="like-section">
+                <button class="like-btn" onclick="likePhoto('photo2')">Me gusta <i class="fas fa-heart"></i></button>
+                <span class="like-counter">0</span> Me gusta
+            </div>
+            <div class="comment-section">
+                <h3>Deja un comentario</h3>
+                <textarea id="comment2" placeholder="Escribe un comentario..."></textarea>
+                <button onclick="submitComment('comment2', 'commentsList2')">Enviar</button>
+                <div id="commentsList2"></div>
+            </div>
+        </div>
+
+        <div class="photo" id="photo3">
+            <img src="foto_3.jpeg" alt="Foto 3" onclick="viewImage('foto_3.jpeg')">
+            <div class="like-section">
+                <button class="like-btn" onclick="likePhoto('photo3')">Me gusta <i class="fas fa-heart"></i></button>
+                <span class="like-counter">0</span> Me gusta
+            </div>
+            <div class="comment-section">
+                <h3>Deja un comentario</h3>
+                <textarea id="comment3" placeholder="Escribe un comentario..."></textarea>
+                <button onclick="submitComment('comment3', 'commentsList3')">Enviar</button>
+                <div id="commentsList3"></div>
+            </div>
+        </div>
+
+        <div class="photo" id="photo4">
+            <img src="foto_4.jpeg" alt="Foto 4" onclick="viewImage('foto_4.jpeg')">
+            <div class="like-section">
+                <button class="like-btn" onclick="likePhoto('photo4')">Me gusta <i class="fas fa-heart"></i></button>
+                <span class="like-counter">0</span> Me gusta
+            </div>
+            <div class="comment-section">
+                <h3>Deja un comentario</h3>
+                <textarea id="comment4" placeholder="Escribe un comentario..."></textarea>
+                <button onclick="submitComment('comment4', 'commentsList4')">Enviar</button>
+                <div id="commentsList4"></div>
+            </div>
+        </div>
+
+        <div class="photo" id="photo5">
+            <img src="foto_5.jpeg" alt="Foto 5" onclick="viewImage('foto_5.jpeg')">
+            <div class="like-section">
+                <button class="like-btn" onclick="likePhoto('photo5')">Me gusta <i class="fas fa-heart"></i></button>
+                <span class="like-counter">0</span> Me gusta
+            </div>
+            <div class="comment-section">
+                <h3>Deja un comentario</h3>
+                <textarea id="comment5" placeholder="Escribe un comentario..."></textarea>
+                <button onclick="submitComment('comment5', 'commentsList5')">Enviar</button>
+                <div id="commentsList5"></div>
+            </div>
+        </div>
+
+        <div class="photo" id="photo6">
+            <img src="foto_6.jpeg" alt="Foto 6" onclick="viewImage('foto_6.jpeg')">
+            <div class="like-section">
+                <button class="like-btn" onclick="likePhoto('photo6')">Me gusta <i class="fas fa-heart"></i></button>
+                <span class="like-counter">0</span> Me gusta
+            </div>
+            <div class="comment-section">
+                <h3>Deja un comentario</h3>
+                <textarea id="comment6" placeholder="Escribe un comentario..."></textarea>
+                <button onclick="submitComment('comment6', 'commentsList6')">Enviar</button>
+                <div id="commentsList6"></div>
+            </div>
+        </div>
+
+        <div class="photo" id="photo7">
+            <img src="foto_7.jpeg" alt="Foto 7" onclick="viewImage('foto_7.jpeg')">
+            <div class="like-section">
+                <button class="like-btn" onclick="likePhoto('photo7')">Me gusta <i class="fas fa-heart"></i></button>
+                <span class="like-counter">0</span> Me gusta
+            </div>
+            <div class="comment-section">
+                <h3>Deja un comentario</h3>
+                <textarea id="comment7" placeholder="Escribe un comentario..."></textarea>
+                <button onclick="submitComment('comment7', 'commentsList7')">Enviar</button>
+                <div id="commentsList7"></div>
+            </div>
+        </div>
+
+        <div class="photo" id="photo8">
+            <img src="foto_8.jpeg" alt="Foto 8" onclick="viewImage('foto_8.jpeg')">
+            <div class="like-section">
+                <button class="like-btn" onclick="likePhoto('photo8')">Me gusta <i class="fas fa-heart"></i></button>
+                <span class="like-counter">0</span> Me gusta
+            </div>
+            <div class="comment-section">
+                <h3>Deja un comentario</h3>
+                <textarea id="comment8" placeholder="Escribe un comentario..."></textarea>
+                <button onclick="submitComment('comment8', 'commentsList8')">Enviar</button>
+                <div id="commentsList8"></div>
+            </div>
+        </div>
+
+        <div class="photo" id="photo9">
+            <img src="foto_9.jpeg" alt="Foto 9" onclick="viewImage('foto_9.jpeg')">
+            <div class="like-section">
+                <button class="like-btn" onclick="likePhoto('photo9')">Me gusta <i class="fas fa-heart"></i></button>
+                <span class="like-counter">0</span> Me gusta
+            </div>
+            <div class="comment-section">
+                <h3>Deja un comentario</h3>
+                <textarea id="comment9" placeholder="Escribe un comentario..."></textarea>
+                <button onclick="submitComment('comment9', 'commentsList9')">Enviar</button>
+                <div id="commentsList9"></div>
+            </div>
+        </div>
+
+        <div class="photo" id="photo10">
+            <img src="foto_10.jpeg" alt="Foto 10" onclick="viewImage('foto_10.jpeg')">
+            <div class="like-section">
+                <button class="like-btn" onclick="likePhoto('photo10')">Me gusta <i class="fas fa-heart"></i></button>
+                <span class="like-counter">0</span> Me gusta
+            </div>
+            <div class="comment-section">
+                <h3>Deja un comentario</h3>
+                <textarea id="comment10" placeholder="Escribe un comentario..."></textarea>
+                <button onclick="submitComment('comment10', 'commentsList10')">Enviar</button>
+                <div id="commentsList10"></div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Hecho con ❤️ por [Krisma]</p>
+    </footer>
+
+    <script>
+       // Lógica de la contraseña
+       function checkPassword() {
+            const password = document.getElementById("password").value;
+            const correctPassword = "krisma";  // Asegúrate de que esta sea la contraseña correcta
+            const emergencyPassword = "gatitos negros";  // Contraseña de emergencia
+
+            if (password === correctPassword || password === emergencyPassword) {
+                // Si la contraseña es correcta, muestra el álbum y oculta el login
+                document.querySelector(".gallery").style.display = "grid";
+                document.querySelector(".login").style.display = "none";
+            } else {
+                // Si la contraseña es incorrecta, muestra un mensaje de error
+                alert("Contraseña incorrecta");
+            }
+        }
+        // Función para visualizar imagen
+        function viewImage(imageSrc) {
+            const modal = document.createElement("div");
+            modal.classList.add("modal");
+            const modalContent = document.createElement("img");
+            modalContent.classList.add("modal-content");
+            modalContent.src = imageSrc;
+            const closeButton = document.createElement("span");
+            closeButton.classList.add("close");
+            closeButton.innerHTML = "&times;";
+            closeButton.onclick = function() {
+                modal.remove();
+            }
+            modal.appendChild(closeButton);
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+        }
+
+        // Función de "me gusta"
+        function likePhoto(photoId) {
+            const photo = document.getElementById(photoId);
+            const counter = photo.querySelector(".like-counter");
+            let likes = parseInt(counter.innerText);
+            likes++;
+            counter.innerText = likes;
+        }
+
+        // Función de enviar comentario
+        function submitComment(commentId, commentListId) {
+            const commentText = document.getElementById(commentId).value;
+            if (commentText !== "") {
+                const commentList = document.getElementById(commentListId);
+                const newComment = document.createElement("div");
+                newComment.classList.add("comment");
+                newComment.innerText = commentText;
+                commentList.appendChild(newComment);
+                document.getElementById(commentId).value = "";
+            }
+        }
+    </script>
+</body>
+</html>
